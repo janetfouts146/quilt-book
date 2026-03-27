@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Quilt Book</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root { --burgundy:#7B2D42; --bl:#F9F0F3; --bm:#c4788e; --gold:#c8973a; --text:#2c2c2c; --border:#ddd; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,sans-serif;background:#f0eaea;color:var(--text);min-height:100vh;}
+  header{background:var(--burgundy);color:white;padding:18px 28px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+  header h1{font-size:1.4rem;font-weight:700;}
+  header p{font-size:.82rem;opacity:.8;margin-top:2px;}
+  .container{max-width:960px;margin:0 auto;padding:24px 16px;}
+  .card{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:20px;}
+  .card h2{color:var(--burgundy);font-size:1rem;margin-bottom:14px;}
+  .info-box{background:var(--bl);border-radius:8px;padding:14px 18px;margin-bottom:18px;font-size:.85rem;line-height:1.7;color:#555;}
+  .info-box strong{color:var(--burgundy);}
+  .fr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .fg{display:flex;flex-direction:column;gap:4px;}
+  .fg label{font-size:.8rem;font-weight:bold;color:var(--burgundy);}
+  .fg input{padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:.87rem;outline:none;width:100%;}
+  .fg input:focus{border-color:var(--burgundy);}
+  .hint{font-size:.74rem;color:#888;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:8px;border:none;font-size:.85rem;font-weight:bold;cursor:pointer;transition:all .18s;}
+  .bp{background:var(--burgundy);color:white;} .bp:hover{background:#5e2233;}
+  .bs{background:white;color:var(--burgundy);border:2px solid var(--burgundy);} .bs:hover{background:var(--bl);}
+  .bg{background:var(--gold);color:white;} .bg:hover{background:#a87830;}
+  .sb{background:white;border-radius:10px;padding:12px 18px;margin-bottom:18px;display:none;align-items:center;gap:10px;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+  .sb.v{display:flex;}
+  .spin{width:18px;height:18px;border:3px solid #eee;border-top-color:var(--burgundy);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .cc{display:none;} .cc.v{display:block;}
+  .cr{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:14px;}
+  .fg2{display:flex;flex-direction:column;gap:3px;}
+  .fg2 label{font-size:.78rem;font-weight:bold;color:#666;}
+  .fg2 select,.fg2 input{padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:.83rem;min-width:150px;}
+  .er{display:flex;flex-wrap:wrap;gap:8px;padding-top:12px;border-top:1px solid #eee;}
+  .ri{font-size:.83rem;color:#666;margin-bottom:12px;padding:8px 14px;background:var(--bl);border-radius:7px;display:none;}
+  .ri.v{display:block;}
+  .es{text-align:center;padding:50px 20px;color:#aaa;display:none;} .es.v{display:block;}
+  .qg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:24px;}
+  .qc{background:white;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);transition:transform .15s,box-shadow .15s;cursor:pointer;border:2px solid transparent;}
+  .qc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.12);}
+  .ch{background:var(--burgundy);color:white;padding:9px 12px;font-size:.76rem;display:flex;justify-content:space-between;align-items:center;}
+  .ch .qn{font-weight:bold;font-size:.83rem;}
+  .cb{padding:12px;}
+  .cn{font-weight:bold;font-size:.92rem;color:var(--burgundy);margin-bottom:7px;line-height:1.3;}
+  .cd{font-size:.78rem;color:#555;margin-bottom:3px;display:flex;gap:5px;}
+  .cd span:first-child{font-weight:bold;color:#999;min-width:65px;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:bold;margin-top:5px;}
+  .sc{background:#d4edda;color:#155724;} .sp{background:#fff3cd;color:#856404;}
+  .st{background:#cce5ff;color:#004085;} .sb2{background:#f8d7da;color:#721c24;}
+  .sg{background:#e2d9f3;color:#432874;} .sd{background:#e9ecef;color:#495057;}
+  .pp{width:100%;height:70px;background:var(--bl);display:flex;align-items:center;justify-content:center;font-size:.73rem;color:var(--bm);}
+  .mo{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px;}
+  .mo.v{display:flex;}
+  .md{background:white;border-radius:14px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .mh{background:var(--burgundy);color:white;padding:16px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:flex-start;}
+  .mh h3{font-size:1.05rem;line-height:1.3;}
+  .mc{background:none;border:none;color:white;font-size:1.3rem;cursor:pointer;}
+  .mb{padding:20px;}
+  .mp{width:100%;max-height:240px;object-fit:cover;border-radius:8px;margin-bottom:16px;}
+  .mpp{width:100%;height:140px;background:var(--bl);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--bm);font-size:.83rem;}
+  .dg{display:grid;grid-template-columns:120px 1fr;gap:7px 10px;}
+  .dl{font-size:.8rem;font-weight:bold;color:var(--burgundy);}
+  .dv{font-size:.83rem;color:#333;}
+  .mf{padding:14px 20px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end;}
+  .pdfp{position:fixed;bottom:20px;right:20px;background:var(--burgundy);color:white;padding:12px 20px;border-radius:10px;font-size:.85rem;box-shadow:0 4px 20px rgba(0,0,0,.3);display:none;z-index:2000;}
+  .pdfp.v{display:block;}
+  @media(max-width:560px){.fr{grid-template-columns:1fr;}.cr{flex-direction:column;}}
+</style>
+</head>
+<body>
+<header>
+  <div style="font-size:2rem">🪡</div>
+  <div><h1>My Quilt Book</h1><p>Connected to Airtable — Filter, Browse & Export</p></div>
+</header>
+<div class="container">
+  <div class="card" id="setupCard">
+    <h2>🔧 Connect to Your Airtable</h2>
+    <div class="info-box">
+      Your <strong>Base ID</strong> and <strong>Table Name</strong> are already filled in.<br>
+      Just paste your new <strong>Personal Access Token</strong> (starts with <strong>pat...</strong>) and click Connect.
+    </div>
+    <div class="fr">
+      <div class="fg">
+        <label>Personal Access Token</label>
+        <input type="password" id="apiKey" placeholder="patXXXXXXXXXXXXXX" />
+        <span class="hint">Stays in your browser only — never shared</span>
+      </div>
+      <div class="fg">
+        <label>Base ID</label>
+        <input type="text" id="baseId" value="appLCrCnliTj64ym8" />
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg">
+        <label>Table Name</label>
+        <input type="text" id="tableName" value="Quilt Records" />
+      </div>
+      <div class="fg" style="justify-content:flex-end;">
+        <button class="btn bp" onclick="connectAirtable()">🔗 Connect & Load Quilts</button>
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="btn bs" onclick="loadDemo()" style="font-size:.79rem;">📋 Try Sample Data (no Airtable needed)</button>
+    </div>
+  </div>
+
+  <div class="sb" id="statusBar">
+    <div class="spin" id="spinner"></div>
+    <span id="statusText">Loading...</span>
+  </div>
+
+  <div class="card cc" id="controlsCard">
+    <h2>🔍 Filter & Export</h2>
+    <div class="cr">
+      <div class="fg2"><label>Status</label>
+        <select id="filterStatus" onchange="applyFilters()">
+          <option value="">All Quilts</option>
+          <option>In Progress</option><option>Top Pieced</option>
+          <option>Ready for Binding</option><option>Complete</option><option>Gifted</option>
+        </select>
+      </div>
+      <div class="fg2"><label>Search</label>
+        <input type="text" id="filterSearch" placeholder="Name, recipient..." oninput="applyFilters()" />
+      </div>
+      <div class="fg2"><label>Sort By</label>
+        <select id="sortBy" onchange="applyFilters()">
+          <option value="num">Quilt Number</option><option value="name">Name</option>
+          <option value="date">Date Completed</option><option value="status">Status</option>
+        </select>
+      </div>
+      <button class="btn bs" onclick="clearFilters()" style="font-size:.8rem;">✕ Clear</button>
+    </div>
+    <div class="er">
+      <button class="btn bp" onclick="exportSummaryPDF()">📄 Summary List PDF</button>
+      <button class="btn bg" onclick="exportQuiltBook()">📖 Full Quilt Book PDF</button>
+      <button class="btn bs" id="btnES" onclick="exportSelectedCard()" style="display:none;font-size:.8rem;">🃏 Export Selected Card</button>
+    </div>
+  </div>
+
+  <div class="ri" id="resultsInfo"></div>
+  <div class="es" id="emptyState"><div style="font-size:2.5rem;margin-bottom:10px">🧵</div><p>No quilts match your filter.</p></div>
+  <div class="qg" id="quiltGrid"></div>
+</div>
+
+<div class="mo" id="modalOverlay" onclick="closeModal(event)">
+  <div class="md">
+    <div class="mh">
+      <div><div style="font-size:.82rem;opacity:.8" id="modalNum"></div><h3 id="modalName"></h3></div>
+      <button class="mc" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="mb">
+      <div id="modalPhotoArea"></div>
+      <div class="dg" id="modalDetails"></div>
+    </div>
+    <div class="mf">
+      <button class="btn bs" onclick="closeModalDirect()">Close</button>
+      <button class="btn bp" onclick="exportCurrentCard()">🖨 Print This Card</button>
+    </div>
+  </div>
+</div>
+<div class="pdfp" id="pdfProgress"></div>
+
+<script>
+const {jsPDF}=window.jspdf;
+let allQuilts=[],filteredQuilts=[],selectedQuilt=null;
+
+const FIELDS={number:"Qu",name:"Name",size:"Size",pattern:"Pattern By",started:"Date Started",completed:"Date Completed",status:"Status",giftedTo:"Gifted or Customer",comments:"Comments",photos:"Photos"};
+
+const DEMO=[
+  {id:"r1",fields:{"Qu":"20.100","Name":"Hide Away Baby Quilt","Size":"58.5 x 58.5","Pattern By":"Panel pieces","Date Started":"10/20","Date Completed":"06/21","Status":"Gifted","Gifted or Customer":"Val Siemens","Comments":"Val finished off. Longarm stitching."}},
+  {id:"r2",fields:{"Qu":"21.122","Name":"Ghosts","Size":"62 x 64","Pattern By":"Modern Ghost","Date Started":"10/21","Date Completed":"11/21","Status":"Gifted","Gifted or Customer":"Dan Fouts","Comments":"Cuddle backing."}},
+  {id:"r3",fields:{"Qu":"22.113","Name":"All Wiggly","Size":"51 x 66","Pattern By":"Louanna Mary Quilt Design","Date Started":"05/22","Date Completed":"06/22","Status":"Gifted","Gifted or Customer":"Michael","Comments":"White, black and grays with cuddle backing."}},
+  {id:"r4",fields:{"Qu":"21.107","Name":"Skylight","Size":"66.5 x 76.5","Pattern By":"Missouri Kit","Date Started":"06/21","Date Completed":"","Status":"Top Pieced","Gifted or Customer":"","Comments":"Ice cream theme fabric."}},
+  {id:"r5",fields:{"Qu":"22.111","Name":"Magic Star Quilt","Size":"74 x 90","Pattern By":"Sarah Jane Studios","Date Started":"05/22","Date Completed":"","Status":"Ready for Binding","Gifted or Customer":"","Comments":"All cotton."}},
+  {id:"r6",fields:{"Qu":"24.100","Name":"Christmas Block a Month","Size":"86 x 89","Pattern By":"Val sewing","Date Started":"2024","Date Completed":"","Status":"In Progress","Gifted or Customer":"","Comments":"Pinks, green, red and seasonal."}},
+  {id:"r7",fields:{"Qu":"21.123","Name":"Woolies Plaid","Size":"67 x 79","Pattern By":"Woolie flannel","Date Started":"10/21","Date Completed":"11/21","Status":"Complete","Gifted or Customer":"Fouts Family","Comments":"Flannel backing wool batting."}},
+];
+
+function gf(r,k){return(r.fields[FIELDS[k]]||"").toString();}
+function showS(msg,spin=true){document.getElementById("statusBar").classList.add("v");document.getElementById("statusText").textContent=msg;document.getElementById("spinner").style.display=spin?"block":"none";}
+function hideS(){document.getElementById("statusBar").classList.remove("v");}
+
+async function connectAirtable(){
+  const key=document.getElementById("apiKey").value.trim();
+  const base=document.getElementById("baseId").value.trim();
+  const table=document.getElementById("tableName").value.trim()||"Quilt Records";
+  if(!key){alert("Please paste your Personal Access Token.");return;}
+  if(!base){alert("Please enter your Base ID.");return;}
+  showS("Connecting to Airtable...");
+  allQuilts=[];let offset="";
+  try{
+    do{
+      const url=`https://api.airtable.com/v0/${base}/${encodeURIComponent(table)}?pageSize=100${offset?"&offset="+offset:""}`;
+      const res=await fetch(url,{headers:{Authorization:`Bearer ${key}`}});
+      if(!res.ok){const e=await res.json();throw new Error(e.error?.message||`Error ${res.status}`);}
+      const data=await res.json();
+      allQuilts=allQuilts.concat(data.records||[]);
+      offset=data.offset||"";
+      showS(`Loading... ${allQuilts.length} quilts found`);
+    }while(offset);
+    document.getElementById("setupCard").style.display="none";
+    hideS();showS(`✅ ${allQuilts.length} quilts loaded!`,false);
+    setTimeout(hideS,3000);
+    document.getElementById("controlsCard").classList.add("v");
+    applyFilters();
+  }catch(e){hideS();alert("Connection failed: "+e.message);}
+}
+
+function loadDemo(){
+  allQuilts=DEMO;
+  document.getElementById("setupCard").style.display="none";
+  showS(`✅ ${allQuilts.length} sample quilts loaded`,false);
+  setTimeout(hideS,2500);
+  document.getElementById("controlsCard").classList.add("v");
+  applyFilters();
+}
+
+function applyFilters(){
+  const status=document.getElementById("filterStatus").value;
+  const search=document.getElementById("filterSearch").value.toLowerCase();
+  const sort=document.getElementById("sortBy").value;
+  filteredQuilts=allQuilts.filter(q=>{
+    if(status&&gf(q,"status")!==status)return false;
+    if(search){const h=[gf(q,"name"),gf(q,"giftedTo"),gf(q,"number")].join(" ").toLowerCase();if(!h.includes(search))return false;}
+    return true;
+  });
+  filteredQuilts.sort((a,b)=>{
+    if(sort==="name")return gf(a,"name").localeCompare(gf(b,"name"));
+    if(sort==="status")return gf(a,"status").localeCompare(gf(b,"status"));
+    if(sort==="date")return gf(b,"completed").localeCompare(gf(a,"completed"));
+    return gf(a,"number").localeCompare(gf(b,"number"));
+  });
+  renderGrid();
+}
+
+function clearFilters(){document.getElementById("filterStatus").value="";document.getElementById("filterSearch").value="";document.getElementById("sortBy").value="num";applyFilters();}
+
+function badgeClass(s){if(s==="Complete")return"sc";if(s==="In Progress")return"sp";if(s==="Top Pieced")return"st";if(s==="Ready for Binding")return"sb2";if(s==="Gifted")return"sg";return"sd";}
+
+function renderGrid(){
+  const grid=document.getElementById("quiltGrid");
+  const info=document.getElementById("resultsInfo");
+  const empty=document.getElementById("emptyState");
+  grid.innerHTML="";
+  info.classList.add("v");info.textContent=`Showing ${filteredQuilts.length} of ${allQuilts.length} quilts`;
+  if(!filteredQuilts.length){empty.classList.add("v");return;}
+  empty.classList.remove("v");
+  filteredQuilts.forEach(q=>{
+    const photos=q.fields[FIELDS.photos];
+    const ph=photos?.length?`<img style="width:100%;height:100px;object-fit:cover;display:block" src="${photos[0].url}" />`:`<div class="pp">📷 No photo yet</div>`;
+    const card=document.createElement("div");card.className="qc";
+    card.innerHTML=`${ph}<div class="ch"><span class="qn">${gf(q,"number")||"—"}</span><span style="opacity:.8;font-size:.73rem">${gf(q,"size")}</span></div><div class="cb"><div class="cn">${gf(q,"name")||"Unnamed"}</div>${gf(q,"pattern")?`<div class="cd"><span>Pattern</span>${gf(q,"pattern")}</div>`:""} ${gf(q,"giftedTo")?`<div class="cd"><span>Gifted To</span>${gf(q,"giftedTo")}</div>`:""}<span class="badge ${badgeClass(gf(q,'status'))}">${gf(q,"status")||"No Status"}</span></div>`;
+    card.onclick=()=>openModal(q);grid.appendChild(card);
+  });
+}
+
+function openModal(q){
+  selectedQuilt=q;
+  document.getElementById("modalNum").textContent=gf(q,"number");
+  document.getElementById("modalName").textContent=gf(q,"name")||"Unnamed Quilt";
+  const photos=q.fields[FIELDS.photos];
+  document.getElementById("modalPhotoArea").innerHTML=photos?.length?`<img class="mp" src="${photos[0].url}" />`:`<div class="mpp">📷 No photo added yet</div>`;
+  const details=[["Size",gf(q,"size")],["Pattern / Source",gf(q,"pattern")],["Date Started",gf(q,"started")],["Date Completed",gf(q,"completed")],["Status",gf(q,"status")],["Gifted To",gf(q,"giftedTo")],["Comments",gf(q,"comments")]].filter(([,v])=>v);
+  document.getElementById("modalDetails").innerHTML=details.map(([l,v])=>`<div class="dl">${l}</div><div class="dv">${v}</div>`).join("");
+  document.getElementById("modalOverlay").classList.add("v");
+  document.getElementById("btnES").style.display="inline-flex";
+}
+function closeModal(e){if(e.target===document.getElementById("modalOverlay"))closeModalDirect();}
+function closeModalDirect(){document.getElementById("modalOverlay").classList.remove("v");}
+function showP(msg){const el=document.getElementById("pdfProgress");el.textContent=msg;el.classList.add("v");}
+function hideP(){document.getElementById("pdfProgress").classList.remove("v");}
+
+function exportSummaryPDF(){
+  if(!filteredQuilts.length){alert("No quilts to export.");return;}
+  showP("Generating Summary PDF...");
+  const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"letter"});
+  const W=279,BURG=[123,45,66],LIGHT=[249,240,243];
+  doc.setFillColor(...BURG);doc.rect(0,0,W,38,"F");
+  doc.setTextColor(255,255,255);doc.setFontSize(22);doc.setFont("helvetica","bold");doc.text("My Quilt Records",12,18);
+  doc.setFontSize(10);doc.setFont("helvetica","normal");doc.text(`${filteredQuilts.length} quilts  •  ${new Date().toLocaleDateString("en-CA")}`,12,28);
+  const cols=[18,65,22,52,20,22,32,28],headers=["#","Name","Size","Pattern","Started","Completed","Status","Gifted To"];
+  let y=50;
+  doc.setFillColor(...BURG);doc.rect(10,y-5,W-20,9,"F");doc.setTextColor(255,255,255);doc.setFontSize(7.5);doc.setFont("helvetica","bold");
+  let x=12;headers.forEach((h,i)=>{doc.text(h,x,y);x+=cols[i];});y+=6;
+  filteredQuilts.forEach((q,idx)=>{
+    if(y>200){doc.addPage();y=20;doc.setFillColor(...BURG);doc.rect(10,y-5,W-20,9,"F");doc.setTextColor(255,255,255);doc.setFontSize(7.5);doc.setFont("helvetica","bold");x=12;headers.forEach((h,i)=>{doc.text(h,x,y);x+=cols[i];});y+=6;}
+    if(idx%2===0){doc.setFillColor(...LIGHT);doc.rect(10,y-4,W-20,7,"F");}
+    doc.setTextColor(40,40,40);doc.setFontSize(7);doc.setFont("helvetica","normal");x=12;
+    [gf(q,"number"),gf(q,"name"),gf(q,"size"),gf(q,"pattern"),gf(q,"started"),gf(q,"completed"),gf(q,"status"),gf(q,"giftedTo")].forEach((v,i)=>{
+      const mw=cols[i]-2;const t=doc.getTextWidth(v)>mw?v.substring(0,Math.floor(v.length*mw/doc.getTextWidth(v))-1)+"…":v;doc.text(t,x,y);x+=cols[i];
+    });y+=7;
+  });
+  hideP();doc.save("Quilt_Summary.pdf");
+}
+
+async function exportQuiltBook(){
+  if(!filteredQuilts.length){alert("No quilts to export.");return;}
+  showP(`Building quilt book (0 of ${filteredQuilts.length})...`);
+  const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"letter"});
+  const W=216,H=279,BURG=[123,45,66],LIGHT=[249,240,243];
+  doc.setFillColor(...BURG);doc.rect(0,0,W,H,"F");
+  doc.setTextColor(255,255,255);doc.setFontSize(34);doc.setFont("helvetica","bold");doc.text("My Quilt Book",W/2,100,{align:"center"});
+  doc.setFontSize(13);doc.setFont("helvetica","normal");doc.text(`${filteredQuilts.length} Quilts`,W/2,116,{align:"center"});
+  doc.setFontSize(10);doc.text(new Date().toLocaleDateString("en-CA",{year:"numeric",month:"long"}),W/2,128,{align:"center"});
+  for(let i=0;i<filteredQuilts.length;i++){
+    const q=filteredQuilts[i];showP(`Building quilt book (${i+1} of ${filteredQuilts.length})...`);
+    doc.addPage();
+    doc.setFillColor(...BURG);doc.rect(0,0,W,17,"F");
+    doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont("helvetica","bold");doc.text(`#${gf(q,"number")}`,12,11);
+    doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text(gf(q,"name")||"Unnamed",44,11);
+    const photos=q.fields[FIELDS.photos];let pb=88;
+    if(photos?.length){try{const d=await loadImg(photos[0].url);doc.addImage(d,"JPEG",12,21,W-24,63);}catch{drawPH(doc,12,21,W-24,63,LIGHT);}}
+    else{drawPH(doc,12,21,W-24,63,LIGHT);}
+    const rows=[["Size",gf(q,"size")],["Pattern / Source",gf(q,"pattern")],["Date Started",gf(q,"started")],["Date Completed",gf(q,"completed")],["Status",gf(q,"status")],["Gifted To",gf(q,"giftedTo")]];
+    let y=pb;const lw=50;
+    rows.forEach(([lbl,val],idx)=>{
+      const bg=idx%2===0?[255,255,255]:LIGHT;doc.setFillColor(...bg);doc.rect(12,y,W-24,9,"F");doc.setDrawColor(220,220,220);doc.rect(12,y,W-24,9);
+      doc.setFillColor(...LIGHT);doc.rect(12,y,lw,9,"F");doc.setTextColor(...BURG);doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.text(lbl,14,y+6);
+      doc.setTextColor(50,50,50);doc.setFont("helvetica","normal");doc.text(val||"—",14+lw,y+6);y+=9;
+    });
+    const c=gf(q,"comments");
+    if(c){y+=3;doc.setFillColor(...LIGHT);doc.rect(12,y,W-24,8,"F");doc.setDrawColor(220,220,220);doc.rect(12,y,W-24,8);doc.setTextColor(...BURG);doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.text("Comments",14,y+5.5);y+=8;const lines=doc.splitTextToSize(c,W-28);const ch=Math.max(14,lines.length*4.5+5);doc.setFillColor(255,255,255);doc.rect(12,y,W-24,ch);doc.setTextColor(50,50,50);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.text(lines,14,y+5);y+=ch;}
+    if(y<H-35){y+=4;const nh=Math.min(30,H-y-12);if(nh>8){doc.setFillColor(...LIGHT);doc.rect(12,y,W-24,8,"F");doc.setDrawColor(220,220,220);doc.rect(12,y,W-24,8);doc.setTextColor(...BURG);doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.text("Notes",14,y+5.5);y+=8;doc.setFillColor(255,255,255);doc.rect(12,y,W-24,nh);}}
+    doc.setTextColor(180,180,180);doc.setFontSize(7.5);doc.setFont("helvetica","normal");doc.text(`${i+1} of ${filteredQuilts.length}`,W-12,H-7,{align:"right"});
+  }
+  hideP();doc.save("My_Quilt_Book.pdf");
+}
+
+function drawPH(doc,x,y,w,h,color){doc.setFillColor(...color);doc.rect(x,y,w,h,"F");doc.setDrawColor(210,210,210);doc.rect(x,y,w,h);doc.setTextColor(180,180,180);doc.setFontSize(9);doc.setFont("helvetica","italic");doc.text("Photo will appear here once added in Airtable",x+w/2,y+h/2,{align:"center"});}
+
+function loadImg(url){return new Promise((res,rej)=>{const img=new Image();img.crossOrigin="anonymous";img.onload=()=>{const c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);res(c.toDataURL("image/jpeg",.85));};img.onerror=rej;img.src=url;});}
+
+function exportCurrentCard(){if(selectedQuilt){closeModalDirect();exportSingleCard(selectedQuilt);}}
+function exportSelectedCard(){if(selectedQuilt)exportSingleCard(selectedQuilt);}
+
+async function exportSingleCard(q){
+  showP("Generating card...");
+  const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"letter"});
+  const W=216,H=279,BURG=[123,45,66],LIGHT=[249,240,243];
+  doc.setFillColor(...BURG);doc.rect(0,0,W,17,"F");doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont("helvetica","bold");doc.text(`#${gf(q,"number")}`,12,11);doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text(gf(q,"name")||"Unnamed",44,11);
+  const photos=q.fields[FIELDS.photos];
+  if(photos?.length){try{const d=await loadImg(photos[0].url);doc.addImage(d,"JPEG",12,21,W-24,63);}catch{drawPH(doc,12,21,W-24,63,LIGHT);}}else{drawPH(doc,12,21,W-24,63,LIGHT);}
+  const rows=[["Size",gf(q,"size")],["Pattern / Source",gf(q,"pattern")],["Date Started",gf(q,"started")],["Date Completed",gf(q,"completed")],["Status",gf(q,"status")],["Gifted To",gf(q,"giftedTo")]];
+  let y=88;const lw=50;
+  rows.forEach(([lbl,val],idx)=>{const bg=idx%2===0?[255,255,255]:LIGHT;doc.setFillColor(...bg);doc.rect(12,y,W-24,9,"F");doc.setDrawColor(220,220,220);doc.rect(12,y,W-24,9);doc.setFillColor(...LIGHT);doc.rect(12,y,lw,9,"F");doc.setTextColor(...BURG);doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.text(lbl,14,y+6);doc.setTextColor(50,50,50);doc.setFont("helvetica","normal");doc.text(val||"—",14+lw,y+6);y+=9;});
+  const c=gf(q,"comments");if(c){y+=3;doc.setFillColor(...LIGHT);doc.rect(12,y,W-24,8,"F");doc.setDrawColor(220,220,220);doc.rect(12,y,W-24,8);doc.setTextColor(...BURG);doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.text("Comments",14,y+5.5);y+=8;const lines=doc.splitTextToSize(c,W-28);const ch=Math.max(14,lines.length*4.5+5);doc.setFillColor(255,255,255);doc.rect(12,y,W-24,ch);doc.setTextColor(50,50,50);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.text(lines,14,y+5);}
+  hideP();doc.save(`Quilt_${gf(q,"number").replace(".","_")}.pdf`);
+}
+</script>
+</body>
+</html>
